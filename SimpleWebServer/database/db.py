@@ -1,7 +1,6 @@
 from sqlite3 import connect
-from sqlite3.dbapi2 import Cursor
 
-DB_NAME = "../database/webserver.db"
+DB_NAME = "database/webserver.db"
 conn = connect(DB_NAME)
 cursor = conn.cursor()
 
@@ -19,28 +18,10 @@ def signup(user_name, pass_wd):
 def delete_user(user_name):
     cursor.execute("DELETE FROM user_table WHERE user_name = ?;",(user_name))
     conn.commit()
-def check_login():
-    data = cursor.execute("SELECT * FROM user_table")
-    print(data)
-    # if data != '':
-    #     return 1
-    # else:
-    #     return 0
-    return data
-
-
-create_table()
-signup("admin9","admin123")
-records = check_login()
-for dat in records:
-    print(dat)
-delete_user('admin2')
-delete_user('admin3')
-delete_user('admin4')
-delete_user('admin7')
-
-for dat in records:
-    print(dat)
-
-
-
+def check_login(username, password):
+    data = cursor.execute("SELECT * FROM user_table WHERE user_name = ? and pass_wd = ?;",(username, password))
+    result = data.fetchall()
+    if result:
+        return 1
+    else:
+        return 0
