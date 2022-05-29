@@ -1,16 +1,14 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import cgi
-
-from supervisor.medusa.auth_handler import get_header
-
+import json
 from database.db import create_table, signup, check_login
 from random import randint
 from datetime import datetime
 import logging
 
 islogin = False
-
+type = 0
 def read_html_template(path):
     try:
         with open(path) as f:
@@ -22,6 +20,11 @@ def read_html_template(path):
 class handler(BaseHTTPRequestHandler):
     def gen_token(self):
         return "".join(str(randint(1, 9)) for _ in range(25))
+    def get_method(self):
+        if type == 0:
+            return "GET"
+        elif type == 1:
+            return "POST"
     def get_Ip_addr(self):
         return self.client_address[0]
     def get_header(self):
@@ -30,11 +33,16 @@ class handler(BaseHTTPRequestHandler):
         now = datetime.now()
         return now.strftime("%d/%m/%Y %H:%M:%S")
     def data_to_send(self):
-        login_time = self.get_time()
-        header_data = self.get_header()
-        ip_client = self.get_Ip_addr()
-        data = ('{"IP_Client": '+ str(ip_client) + ', "HTTP_Header": ' + str(header_data) + ', "Login_Time": '+ str(login_time) + '}')
+        data = {
+            "method": str(self.get_method()),
+            "ip": str(self.get_Ip_addr()),
+            "header": str(self.get_header()),
+            "time": str(self.get_time())
+        }
         return data
+    def write_json(self):
+        with open("info.json", "w") as json_out:
+            json.dump(self.data_to_send(), json_out)
     def do_GET(self):
         if self.path == '/':
             self.path = './src/html/index.html'
@@ -46,6 +54,8 @@ class handler(BaseHTTPRequestHandler):
             self.path = './src/html/ForgotPwd.html'
         elif self.path == '/home' and islogin == True:
             self.path = './src/html/singnedIn.html'
+        elif self.path == '/getjson':
+            self.path = 'info.json'
         try:
             split_path = os.path.splitext(self.path)
             request_extension = split_path[1]
@@ -57,6 +67,7 @@ class handler(BaseHTTPRequestHandler):
             else:
                 f = "File not found"
                 self.send_error(404,f)
+
         except:
             f = "File not found"
             self.send_error(404,f)
@@ -94,6 +105,7 @@ class handler(BaseHTTPRequestHandler):
                     global islogin
                     islogin = True
                     html = "<html><head></head><body><h1>Login successfully !!!</h1><a href='/home'>Go to HomePage</a></body></html>"
+                    self.write_json()
                     self.send_response(200, "OK")
                     self.send_header('Content-type', 'text/html')
                     self.end_headers()
@@ -107,3 +119,4 @@ class handler(BaseHTTPRequestHandler):
 
 with HTTPServer(('', 8000), handler) as server:
     server.serve_forever()
+

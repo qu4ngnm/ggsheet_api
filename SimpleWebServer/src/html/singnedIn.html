@@ -42,9 +42,13 @@
     </div>
   </nav>
   <a href="/login">Login now</a>
-  <h1 class="mt-5 mx-3">
+  <h1 class="mt-5 mx-5">
     Welcome back, User !! </br> Check Below !!
   </h1>
+  <div class="mt-3 mx-5 d-flex justify-content-start">
+    <button type="button" class="mt-5 btn btn-success" id="onlybtn">Click me for more !!</button>
+    <div id="request-info" class="mt-5 mx-5"></div>
+  </div>
 </body>
 <footer class="bg-light text-center text-lg-start" id="footer">
   <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.95); color: white; font-size:15px">
@@ -53,7 +57,26 @@
   </div>
   <!-- Copyright -->
 </footer>
+<script>
+  var btn = document.getElementById("onlybtn")
+  var content = document.getElementById("request-info")
+  btn.addEventListener("click", function (){
+    var req = new XMLHttpRequest();
+    req.open('GET', 'http://localhost:8000/getjson');
+    req.onload = function() {
+      var data = JSON.parse(req.responseText);
+      console.log(data)
+      renderHTML(data)
+    };
+    req.send();
+  });
 
+  function renderHTML(data){
+    var html_str = '';
+    html_str += "<p>"+ "Method: " + data.method + "</p>" + "<br>" + "<p>"+ "Your IP: " + data.ip + "</p>" + "<br>" + "<p>"+ "Your Request Header: " + data.header + "</p>" + "<br>" + "<p>"+ "Time: " + data.time + "</p>";
+    content.insertAdjacentHTML('beforeend', html_str)
+  }
+</script>
 <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
 <script type="text/javascript" src="../scripts/script.js"></script>
 </html> ,
