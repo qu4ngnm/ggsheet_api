@@ -28,7 +28,7 @@ class handler(BaseHTTPRequestHandler):
     def get_Ip_addr(self):
         return self.client_address[0]
     def get_header(self):
-        return logging.error(self.headers)
+        return self.headers
     def get_time(self):
         now = datetime.now()
         return now.strftime("%d/%m/%Y %H:%M:%S")
