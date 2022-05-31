@@ -40,60 +40,39 @@
       </div>
     </div>
   </nav>
-  <div class="container">
     <h1 class="mt-5 mx-5" style="margin-top: 90px !important; font-size:35px; aligh-items: center">
-    Google Sheet Management
+      Google Sheet Management
     </h1>
-    <div class="items">
-      <section class="vh-100 gradient-custom">
-        <div class="container py-5 h-100">
-          <div class="row justify-content-center align-items-center h-100">
-            <div class="col-12 col-lg-9 col-xl-7">
-              <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
-                <div class="card-body p-4 p-md-5">
-                  <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Choose what to do</h3>
-                  <form>
-                    <div class="mb-5">
-                      <select class="form-select" aria-label="Default select example">
-                        <option selected>Menu Action</option>
-                        <option value="read">READ</option>
-                        <option value="update">UPDATE</option>
-                        <option value="delete">DELETE</option>
-                      </select>
-                      <p>Action</p>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-md-6 mb-4 d-flex align-items-center">
-                        <div class="form-outline datepicker w-100">
-                          <input type="text" class="form-control form-control-lg" id="birthdayDate" />
-                          <label for="birthdayDate" class="form-label">Email</label>
-                        </div>
-                      </div>
-                    <div class="row">
-                      <div class="col-md-6 mb-4 pb-2">
-                        <div class="form-outline">
-                          <input type="email" id="emailAddress" class="form-control form-control-lg" />
-                          <label class="form-label" for="emailAddress">Name</label>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="mt-4 pt-2">
-                      <input class="btn btn-success btn-lg" type="submit" value="Fetch" />
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-          </div>
+  <div class="container d-flex justify-content-center mt-5">
+    <div class="items mx-5">
+      <form action="/send" method="post" enctype="multipart/form-data">
+        <div class="form-outline d-flex justify-content-center align-items-center">
+          <label class="form-label mx-2" for="action">Action</label>
+          <select class="form-select form-select-lg mb-3">
+            <option selected>Select Action</option>
+            <option value="read">READ</option>
+            <option value="update">UPDATE</option>
+            <option value="create">CREATE</option>
+            <option value="delete">DELETE</option>
+          </select>
         </div>
-      </section>
+        <div class="form-outline d-flex justify-content-center align-items-center mt-5">
+          <label class="form-label mx-2" for="name">Name</label>
+          <input type="text" name="name" id="name" class="form-control form-control-lg"/>
+        </div>
+        <div class="form-outline d-flex justify-content-center align-items-center mt-5">
+          <label class="form-label mx-2" for="email">Email</label>
+          <input style="width: 600px" type="text" name="email" id="email" class="form-control form-control-lg"/>
+        </div>
+        <div class="mt-4 py-px-3">
+          <input class="btn btn-success btn-lg float-right" type="submit" value="Fetch"/>
+        </div>
+      </form>
     </div>
-  </div>
   <div class="fetch-content">
-    <canvas class="" id="myCanvas" width="850" height="600" style="border: 1px solid black; margin: 1px auto;"></canvas>
+    <canvas class="" id="myCanvas" width="850" height="600" style="border: 1px solid black;border-radius: 9px ; margin: 0px auto;"></canvas>
   </div>
-
+</div>
 </body>
 <footer class="bg-light text-center text-lg-start" id="footer">
   <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.95); color: white; font-size:15px">
