@@ -2,22 +2,12 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import cgi
 from database.db import create_table, signup, check_login
-from googleapiclient.discovery import build
-from google.oauth2 import service_account
 import json
 import gspread
 
 islogin = False
 type = 0
 
-
-# SERVICE_ACCOUNT_FILE = 'key.json'
-# SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-# SPREADSHEET_ID = '1eJU4xJgSyHyC2WDGsaVT8J6Mv4nn7fd-OJIS-Tl2Dig'
-# creds = None
-# creds = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
-# service = build('sheets', 'v4', credentials = creds)
-# sheet = service.spreadsheets()
 row_index = 1
 
 gc = gspread.service_account(filename='key.json')
@@ -45,16 +35,28 @@ class handler(BaseHTTPRequestHandler):
         return cell.row
     def delete_data(self, name):
         cell = worksheet.find(name)
-        row = cell.row
-        worksheet.delete_row(row)
+        if cell is not None:
+            row = cell.row
+            worksheet.delete_row(row)
+            return 1
+        else:
+            return 0
     def update_row(self, name, email):
         cell = worksheet.find(name)
-        row = cell.row
-        col = cell.col
-        worksheet.update_cell(row, col + 1, str(email))
-    def write_to_json(self):
-        with open('status.json', 'w') as json_file:
-            json.dump(self.get_data(), json_file)
+        if cell is not None:
+            row = cell.row
+            col = cell.col
+            worksheet.update_cell(row, col + 1, str(email))
+            return 1
+        else:
+            return 0
+    def write_to_json(self, data):
+        with open('sheet_data.json', 'w') as json_file:
+            json.dump(data, json_file)
+
+    def status_json(self, data):
+        with open('sheet_data.json', 'w') as json_status:
+            json.dump(data, json_status)
 
     def do_GET(self):
         if self.path == '/':
@@ -67,8 +69,8 @@ class handler(BaseHTTPRequestHandler):
             self.path = './src/html/ForgotPwd.html'
         elif self.path == '/home' and islogin == True:
             self.path = './src/html/singnedIn.html'
-        # elif self.path == '/getdata'
-        #     self.path = 'status.json'
+        elif self.path == '/getdata':
+            self.path = 'sheet_data.json'
         try:
             split_path = os.path.splitext(self.path)
             request_extension = split_path[1]
@@ -136,83 +138,32 @@ class handler(BaseHTTPRequestHandler):
                 name = fields.get('name')
                 email = fields.get('email')
                 if method[0] == 'read':
-                    self.write_to_json()
-                    self.path = "status.json"
-                    try:
-                        split_path = os.path.splitext(self.path)
-                        request_extension = split_path[1]
-                        if request_extension != ".py":
-                            f = read_html_template(self.path)
-                            self.send_response(200)
-                            self.end_headers()
-                            self.wfile.write(bytes(f, 'utf-8'))
-                        else:
-                            f = "File not found"
-                            self.send_error(404, f)
-                    except:
-                        f = "File not found"
-                        self.send_error(404, f)
+                    self.write_to_json(self.get_data())
 
-                elif method[0] == 'insert':
+
+                if method[0] == 'insert':
                     self.insert_data(str(name[0]), str(email[0]))
-                    f = """
-                    {
-                        "Success": "True"
-                    }
-                    """
-                    try:
-                        split_path = os.path.splitext(self.path)
-                        request_extension = split_path[1]
-                        if request_extension != ".py":
-                            self.send_response(200)
-                            self.end_headers()
-                            self.wfile.write(bytes(f, 'utf-8'))
-                        else:
-                            f = "File not found"
-                            self.send_error(404, f)
-                    except:
-                        f = "File not found"
-                        self.send_error(404, f)
+                    status_json = """{"Success":"True"}"""
+                    self.status_json(status_json)
+
                 elif method[0] == 'update':
                     self.update_row(str(name[0]), str(email[0]))
-                    f = """
-                    {
-                         "Success": "True"
-                    }
-                    """
-                    try:
-                        split_path = os.path.splitext(self.path)
-                        request_extension = split_path[1]
-                        if request_extension != ".py":
-                            self.send_response(200)
-                            self.end_headers()
-                            self.wfile.write(bytes(f, 'utf-8'))
-                        else:
-                            f = "File not found"
-                            self.send_error(404, f)
-                    except:
-                        f = "File not found"
-                        self.send_error(404, f)
+                    if self.update_row(str(name[0]), str(email[0])) == 1:
+                        status_json = """{"Success":"True"}"""
+                        self.status_json(status_json)
+                    else:
+                        status_json = """{"Success":"False"}"""
+                        self.status_json(status_json)
+
                 elif method[0] == 'delete':
                     self.delete_data(str(name[0]))
-                    f = """
-                    {
-                        "Success": "True"
-                    }
-                    """
-                    try:
-                        split_path = os.path.splitext(self.path)
-                        request_extension = split_path[1]
-                        if request_extension != ".py":
-                            self.send_response(200)
-                            self.end_headers()
-                            self.wfile.write(bytes(f, 'utf-8'))
-                        else:
-                            f = "File not found"
-                            self.send_error(404, f)
-                    except:
-                        f = "File not found"
-                        self.send_error(404, f)
+                    if self.delete_data(str(name[0])) == 1:
+                        status_json = """{"Success":"True"}"""
+                        self.status_json(status_json)
+                    else:
+                        status_json = """{"Success":"False"}"""
+                        self.status_json(status_json)
+
 
 
 
