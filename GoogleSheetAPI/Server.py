@@ -9,7 +9,6 @@ islogin = False
 type = 0
 
 row_index = 1
-
 gc = gspread.service_account(filename='key.json')
 sheet = gc.open_by_key('1eJU4xJgSyHyC2WDGsaVT8J6Mv4nn7fd-OJIS-Tl2Dig')
 worksheet = sheet.sheet1
@@ -163,10 +162,6 @@ class handler(BaseHTTPRequestHandler):
                     else:
                         status_json = """{"Success":"False"}"""
                         self.status_json(status_json)
-
-
-
-
 
 with HTTPServer(('', 8000), handler) as server:
     server.serve_forever()
